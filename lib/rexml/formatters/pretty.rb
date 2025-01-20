@@ -37,7 +37,7 @@ module REXML
 
       protected
       def write_element(node, output)
-        output << ' '*@level
+        output << "\t"*@level
         output << "<#{node.expanded_name}"
 
         node.attributes.each_attribute do |attr|
@@ -69,29 +69,38 @@ module REXML
               end
             end
           end
-          unless skip
-            output << "\n"
+          if node.children.size == 1
+            old_level = @level
+            @level = 0
+            write( node.children[0], output )
+            @level = old_level
+          elsif skip == false
+            output << "\n" * 2
             @level += @indentation
             node.children.each { |child|
               next if child.kind_of?(Text) and child.to_s.strip.length == 0
               write( child, output )
-              output << "\n"
+              output << "\n" * 2
             }
             @level -= @indentation
-            output << ' '*@level
+            output << "\t"*@level
           end
           output << "</#{node.expanded_name}"
         end
         output << ">"
       end
 
+      def write_cdata( node, output)
+        output << "\t" * @level
+        super
+      end
+
       def write_text( node, output )
-        s = node.to_s()
-        s.gsub!(/\s/,' ')
-        s.squeeze!(" ")
-        s = wrap(s, @width - @level)
-        s = indent_text(s, @level, " ", true)
-        output << (' '*@level + s)
+
+        identation = "\t" * @level
+
+        output << ( identation + node.to_s() )
+
       end
 
       def write_comment( node, output)
