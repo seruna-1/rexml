@@ -738,6 +738,15 @@ module REXML
       el
     end
 
+    def insert_element( position, element, attrs=nil )
+      raise "First argument must be either an element name, or an Element object" if element.nil?
+      el = @elements.insert_at(position, element)
+      attrs.each do |key, value|
+        el.attributes[key]=value
+      end       if attrs.kind_of? Hash
+      el
+    end
+
     # :call-seq:
     #   delete_element(index) -> removed_element or nil
     #   delete_element(element) -> removed_element or nil
@@ -777,6 +786,15 @@ module REXML
     #
     def delete_element element
       @elements.delete element
+    end
+
+    def is_a_void?
+      void_names = [ 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr'  ]
+      if void_names.include?(self.name) == true
+        return true
+      else
+        return false
+      end
     end
 
     # :call-seq:
@@ -1925,6 +1943,14 @@ module REXML
         Element.new(element, self, @element.context)
       else
         @element << element
+        element.context = @element.context
+        element
+      end
+    end
+
+    def insert_at( position, element )
+      if element.kind_of?(Element)
+        @element.insert_before_position( position, element )
         element.context = @element.context
         element
       end

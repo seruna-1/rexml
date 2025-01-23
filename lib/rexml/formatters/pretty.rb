@@ -45,11 +45,13 @@ module REXML
           attr.write( output )
         end unless node.attributes.empty?
 
-        if node.children.empty?
+        if node.is_a_void? == true
           if @ie_hack
             output << " "
           end
           output << "/"
+        elsif node.children.empty?
+          output << "></#{node.expanded_name}"
         else
           output << ">"
           # If compact and all children are text, and if the formatted output
